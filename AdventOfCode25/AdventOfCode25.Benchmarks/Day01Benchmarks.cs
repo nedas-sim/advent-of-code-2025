@@ -10,12 +10,12 @@ public class Day01Benchmarks
     [Benchmark]
     public async Task FirstTaskAsync()
     {
-        await Solution<ImmutableDialTurn>.CalculateTotalZerosOnTurnEndAsync("task");
+        await Solution<MutableDialTurn>.CalculateTotalZerosOnTurnEndAsync("task");
     }
 
     [Benchmark]
     public async Task SecondTaskAsync()
     {
-        await Solution<ImmutableDialTurn>.CalculateTotalZerosAtAnyPointAsync("task");
+        await Solution<MutableDialTurn>.CalculateTotalZerosAtAnyPointAsync("task");
     }
 }

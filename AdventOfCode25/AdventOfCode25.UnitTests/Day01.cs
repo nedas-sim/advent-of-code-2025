@@ -8,28 +8,28 @@ public class Day01
     [Fact]
     public async Task TestSolution1()
     {
-        int totalZeros = await Solution.CalculateTotalZerosOnTurnEndAsync("sample");
+        int totalZeros = await Solution<MutableDialTurn>.CalculateTotalZerosOnTurnEndAsync("sample");
         Assert.Equal(3, totalZeros);
     }
 
     [Fact]
     public async Task RunSolution1()
     {
-        int totalZeros = await Solution.CalculateTotalZerosOnTurnEndAsync("task");
+        int totalZeros = await Solution<MutableDialTurn>.CalculateTotalZerosOnTurnEndAsync("task");
         Assert.Equal(980, totalZeros);
     }
 
     [Fact]
     public async Task TestSolution2()
     {
-        int totalZeros = await Solution.CalculateTotalZerosAtAnyPointAsync("sample");
+        int totalZeros = await Solution<MutableDialTurn>.CalculateTotalZerosAtAnyPointAsync("sample");
         Assert.Equal(6, totalZeros);
     }
 
     [Fact]
     public async Task RunSolution2()
     {
-        int totalZeros = await Solution.CalculateTotalZerosAtAnyPointAsync("task");
+        int totalZeros = await Solution<MutableDialTurn>.CalculateTotalZerosAtAnyPointAsync("task");
         Assert.Equal(5961, totalZeros);
     }
 
@@ -42,7 +42,7 @@ public class Day01
     public void DialTurn_Turn_ShouldGetExpected(string inputLine, int currentValue, int nextExpectedValue)
     {
         // Arrange
-        ImmutableDialTurn dialturn = new(inputLine);
+        MutableDialTurn dialturn = new(inputLine);
 
         // Act
         int newPointerAt = dialturn.Turn(currentValue);
@@ -64,7 +64,7 @@ public class Day01
     public void DialTurn_TurnWithPassTracking_ShouldGetExpected(string inputLine, int currentValue, int nextExpectedValue, int passesExpected)
     {
         // Arrange
-        ImmutableDialTurn dialturn = new(inputLine);
+        MutableDialTurn dialturn = new(inputLine);
 
         // Act
         int newPointerAt = dialturn.Turn(currentValue, out int passes);

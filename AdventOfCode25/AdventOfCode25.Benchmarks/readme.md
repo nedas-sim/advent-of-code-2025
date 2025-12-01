@@ -19,4 +19,12 @@
 | FirstTaskAsync  | 309.4 μs | 6.19 μs | 13.18 μs | 39.0625 | 0.9766 |    644 KB |
 | SecondTaskAsync | 393.9 μs | 6.59 μs |  6.16 μs | 39.0625 | 0.9766 | 643.99 KB |
 
-- No decrease in performance.
+- No decrease in performance with an introduced abstraction.
+- Performance with a mutable object:
+
+| Method          | Mean     | Error   | StdDev   | Gen0    | Gen1   | Allocated |
+|---------------- |---------:|--------:|---------:|--------:|-------:|----------:|
+| FirstTaskAsync  | 381.6 μs | 7.42 μs | 10.88 μs | 39.0625 | 0.9766 | 643.99 KB |
+| SecondTaskAsync | 309.3 μs | 6.16 μs |  8.01 μs | 39.0625 | 0.9766 |    644 KB |
+
+- No memory efficiency increase.
