@@ -2,7 +2,7 @@
 
 namespace AdventOfCode25.Solutions.Day01;
 
-public class Solution
+public class Solution<T> where T : class, IDialTurn<T>
 {
     public static async Task<int> CalculateTotalZerosOnTurnEndAsync(string fileName)
     {
@@ -11,7 +11,8 @@ public class Solution
 
         await foreach (string inputLine in File.ReadLinesAsync($"./Day01/{fileName}.txt"))
         {
-            DialTurn turn = new(inputLine);
+            T turn = T.BuildNext(inputLine);
+
             pointerAt = turn.Turn(pointerAt);
 
             if (pointerAt is 0)
@@ -30,7 +31,7 @@ public class Solution
 
         await foreach (string inputLine in File.ReadLinesAsync($"./Day01/{fileName}.txt"))
         {
-            DialTurn turn = new(inputLine);
+            T turn = T.BuildNext(inputLine);
             pointerAt = turn.Turn(pointerAt, out int increment);
             totalZeros += increment;
         }

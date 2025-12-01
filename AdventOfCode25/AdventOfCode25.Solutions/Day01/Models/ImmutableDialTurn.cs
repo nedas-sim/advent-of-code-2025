@@ -2,14 +2,14 @@
 
 namespace AdventOfCode25.Solutions.Day01.Models;
 
-public class DialTurn
+public class ImmutableDialTurn : IDialTurn<ImmutableDialTurn>
 {
-    private DialRotation _rotation;
+    private readonly DialRotation _rotation;
     private int _turns;
 
     private const int MAX_VALUE = 100;
 
-    public DialTurn(string inputLine)
+    public ImmutableDialTurn(string inputLine)
     {
         _rotation = inputLine[0] switch
         {
@@ -64,10 +64,9 @@ public class DialTurn
             _ => false,
         };
     }
-}
 
-public enum DialRotation
-{
-    Left = 1,
-    Right,
+    public static ImmutableDialTurn BuildNext(string inputLine, ImmutableDialTurn? current)
+    {
+        return new ImmutableDialTurn(inputLine);
+    }
 }

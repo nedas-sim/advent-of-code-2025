@@ -42,7 +42,7 @@ public class Day01
     public void DialTurn_Turn_ShouldGetExpected(string inputLine, int currentValue, int nextExpectedValue)
     {
         // Arrange
-        DialTurn dialturn = new(inputLine);
+        ImmutableDialTurn dialturn = new(inputLine);
 
         // Act
         int newPointerAt = dialturn.Turn(currentValue);
@@ -64,7 +64,7 @@ public class Day01
     public void DialTurn_TurnWithPassTracking_ShouldGetExpected(string inputLine, int currentValue, int nextExpectedValue, int passesExpected)
     {
         // Arrange
-        DialTurn dialturn = new(inputLine);
+        ImmutableDialTurn dialturn = new(inputLine);
 
         // Act
         int newPointerAt = dialturn.Turn(currentValue, out int passes);
