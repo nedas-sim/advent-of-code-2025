@@ -2,14 +2,14 @@
 
 namespace AdventOfCode25.Solutions.Day01.Models;
 
-public class ImmutableDialTurn : IDialTurn<ImmutableDialTurn>
+public class DialTurn
 {
     private readonly DialRotation _rotation;
     private int _turns;
 
     private const int MAX_VALUE = 100;
 
-    public ImmutableDialTurn(string inputLine)
+    public DialTurn(string inputLine)
     {
         _rotation = inputLine[0] switch
         {
@@ -19,18 +19,6 @@ public class ImmutableDialTurn : IDialTurn<ImmutableDialTurn>
         };
 
         _turns = int.Parse(inputLine[1..]);
-    }
-
-    public int Turn(int currentPoint)
-    {
-        currentPoint += _rotation switch
-        {
-            DialRotation.Left => -_turns,
-            DialRotation.Right => _turns,
-            _ => throw new UnreachableException(),
-        };
-
-        return (currentPoint + MAX_VALUE) % MAX_VALUE;
     }
 
     public int Turn(int currentPoint, out int totalPassesThroughZero)
@@ -63,10 +51,5 @@ public class ImmutableDialTurn : IDialTurn<ImmutableDialTurn>
             (DialRotation.Right, _, _) when currentValue + _turns >= MAX_VALUE => true,
             _ => false,
         };
-    }
-
-    public static ImmutableDialTurn BuildNext(string inputLine, ImmutableDialTurn? current)
-    {
-        return new ImmutableDialTurn(inputLine);
     }
 }
