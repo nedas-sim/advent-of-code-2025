@@ -45,7 +45,7 @@ public class Day01
         DialTurn dialturn = new(inputLine);
 
         // Act
-        int newPointerAt = dialturn.Turn(currentValue);
+        int newPointerAt = dialturn.Turn(currentValue, out _);
 
         // Assert
         Assert.Equal(nextExpectedValue, newPointerAt);

@@ -12,7 +12,8 @@ public class Solution
         await foreach (string inputLine in File.ReadLinesAsync($"./Day01/{fileName}.txt"))
         {
             DialTurn turn = new(inputLine);
-            pointerAt = turn.Turn(pointerAt);
+
+            pointerAt = turn.Turn(pointerAt, out _);
 
             if (pointerAt is 0)
             {

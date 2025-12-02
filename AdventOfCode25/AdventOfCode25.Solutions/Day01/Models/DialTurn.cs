@@ -4,7 +4,7 @@ namespace AdventOfCode25.Solutions.Day01.Models;
 
 public class DialTurn
 {
-    private DialRotation _rotation;
+    private readonly DialRotation _rotation;
     private int _turns;
 
     private const int MAX_VALUE = 100;
@@ -19,18 +19,6 @@ public class DialTurn
         };
 
         _turns = int.Parse(inputLine[1..]);
-    }
-
-    public int Turn(int currentPoint)
-    {
-        currentPoint += _rotation switch
-        {
-            DialRotation.Left => -_turns,
-            DialRotation.Right => _turns,
-            _ => throw new UnreachableException(),
-        };
-
-        return (currentPoint + MAX_VALUE) % MAX_VALUE;
     }
 
     public int Turn(int currentPoint, out int totalPassesThroughZero)
@@ -64,10 +52,4 @@ public class DialTurn
             _ => false,
         };
     }
-}
-
-public enum DialRotation
-{
-    Left = 1,
-    Right,
 }
