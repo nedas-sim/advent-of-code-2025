@@ -5,6 +5,19 @@ namespace AdventOfCode25.Solutions.Day02;
 
 public class Solution
 {
+    public static async Task<long> CalculateInvalidIdAsSplitInHalfSumAsync(string fileName)
+    {
+        string fileText = await File.ReadAllTextAsync($"./Day02/{fileName}.txt");
+        string[] productIdRanges = fileText.Split(',');
+
+        long invalidIdSum = productIdRanges
+            .Select(x => new ProductIdRange(x))
+            .SelectMany(x => x.GetInvalidIds(2))
+            .Sum();
+
+        return invalidIdSum;
+    }
+
     public static async Task<long> CalculateInvalidIdSumAsync(string fileName)
     {
         string fileText = await File.ReadAllTextAsync($"./Day02/{fileName}.txt");
