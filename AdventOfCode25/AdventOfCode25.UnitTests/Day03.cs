@@ -19,18 +19,49 @@ public class Day03
         Assert.Equal(17031, sum);
     }
 
+    [Fact]
+    public async Task TestSolution2()
+    {
+        long sum = await Solution.SumJoltagesAsync("sample", 12);
+        Assert.Equal(3121910778619, sum);
+    }
+
+    [Fact]
+    public async Task RunSolution2()
+    {
+        long sum = await Solution.SumJoltagesAsync("task", 12);
+        Assert.Equal(168575096286051, sum);
+    }
+
     [Theory]
     [InlineData("987654321111111", 98)]
     [InlineData("811111111111119", 89)]
     [InlineData("234234234234278", 78)]
     [InlineData("818181911112111", 92)]
-    public void BatteryBank_FindHighestJoltage_ShouldReturnExpected(string inputLine, int expected)
+    public void BatteryBank_FindHighestJoltageOfLengthTwo_ShouldReturnExpected(string inputLine, int expected)
     {
         // Arrange
         BatteryBank batteryBank = new(inputLine);
 
         // Act
-        int actual = batteryBank.FindHighestJoltage();
+        long actual = batteryBank.FindHighestJoltage(2);
+
+        // Assert
+        Assert.Equal(expected, actual);
+    }
+
+    [Theory]
+    [InlineData("987654321111111", 987)]
+    [InlineData("811111111111119", 819)]
+    [InlineData("234234234234278", 478)]
+    [InlineData("818181911112111", 921)]
+    public void BatteryBank_FindHighestJoltageOfLengthThree_ShouldReturnExpected(string inputLine, int expected)
+    {
+        // Arrange
+        BatteryBank batteryBank = new(inputLine);
+
+        // Act
+        long actual = batteryBank.FindHighestJoltage(3);
 
         // Assert
         Assert.Equal(expected, actual);

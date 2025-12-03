@@ -2,27 +2,37 @@
 
 public class BatteryBank(string inputLine)
 {
-    public int FindHighestJoltage()
+    public long FindHighestJoltage(int totalDigits)
     {
-        int highestJoltage = GetViableCombinations(inputLine)
-            .SelectMany(first =>
+        IEnumerable<(long Number, string Tail)> optionsIter = GetViableCombinations(inputLine);
+
+        long lowerBound = 1;
+
+        for (int i = 1; i < totalDigits; i++)
+        {
+            optionsIter = optionsIter.SelectMany(first =>
             {
-                IEnumerable<(int Number, string Tail)> viableCombinations = GetViableCombinations(first.Tail);
+                IEnumerable<(long Number, string Tail)> viableCombinations = GetViableCombinations(first.Tail);
                 return viableCombinations.Select(next => (Number: first.Number * 10 + next.Number, next.Tail));
-            })
-            .Where(x => x.Number >= 10)
+            });
+
+            lowerBound *= 10;
+        }
+
+        long highestJoltage = optionsIter
+            .Where(x => x.Number >= lowerBound)
             .Select(x => x.Number)
             .First();
 
         return highestJoltage;
     }
 
-    private static IEnumerable<(int Number, string Tail)> GetViableCombinations(string tail)
+    private static IEnumerable<(long Number, string Tail)> GetViableCombinations(string tail)
     {
         return FromNineToZero()
             .Select(x => (Number: x, Tail: GetStringTail(tail, $"{x}")))
             .Where(x => x.Tail is not null)
-            .OfType<(int Number, string Tail)>();
+            .OfType<(long Number, string Tail)>();
     }
 
     public static string? GetStringTail(string input, string toFind)
@@ -42,7 +52,7 @@ public class BatteryBank(string inputLine)
         return input[(index + 1)..];
     }
 
-    private static IEnumerable<int> FromNineToZero()
+    private static IEnumerable<long> FromNineToZero()
     {
         yield return 9;
         yield return 8;
