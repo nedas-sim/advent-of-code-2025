@@ -74,8 +74,11 @@ public class Day03
     [InlineData("78", "8", "")]
     public void BatteryBank_GetStringTail_ShouldReturnExpected(string input, string toFind, string? expected)
     {
+        // Arrange
+        BatteryBank batteryBank = new(input);
+
         // Act
-        string? actual = BatteryBank.GetStringTail(input, toFind);
+        string? actual = batteryBank.GetStringTail(input, toFind);
 
         // Assert
         Assert.Equal(expected, actual);

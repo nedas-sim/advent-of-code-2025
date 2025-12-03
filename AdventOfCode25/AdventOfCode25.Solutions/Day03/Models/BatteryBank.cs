@@ -1,7 +1,9 @@
 ﻿namespace AdventOfCode25.Solutions.Day03.Models;
 
-public class BatteryBank(string inputLine)
+public class BatteryBank(string inputLine) : IDisposable
 {
+    private ulong _tailCalculationCounter = 0;
+
     public long FindHighestJoltage(int totalDigits)
     {
         IEnumerable<(long Number, string Tail)> optionsIter = GetViableCombinations(inputLine);
@@ -27,7 +29,7 @@ public class BatteryBank(string inputLine)
         return highestJoltage;
     }
 
-    private static IEnumerable<(long Number, string Tail)> GetViableCombinations(string tail)
+    private IEnumerable<(long Number, string Tail)> GetViableCombinations(string tail)
     {
         return FromNineToZero()
             .Select(x => (Number: x, Tail: GetStringTail(tail, $"{x}")))
@@ -35,8 +37,10 @@ public class BatteryBank(string inputLine)
             .OfType<(long Number, string Tail)>();
     }
 
-    public static string? GetStringTail(string input, string toFind)
+    public string? GetStringTail(string input, string toFind)
     {
+        _tailCalculationCounter++;
+
         int index = input.IndexOf(toFind);
         
         if (index == -1)
@@ -64,5 +68,10 @@ public class BatteryBank(string inputLine)
         yield return 2;
         yield return 1;
         yield return 0;
+    }
+
+    public void Dispose()
+    {
+        Console.WriteLine($"Total '{nameof(GetStringTail)}' call count: {_tailCalculationCounter}");
     }
 }

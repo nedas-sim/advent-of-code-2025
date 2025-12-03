@@ -10,7 +10,7 @@ public class Solution
         
         await foreach (string inputLine in File.ReadLinesAsync($"./Day03/{fileName}.txt"))
         {
-            BatteryBank batteryBank = new(inputLine);
+            using BatteryBank batteryBank = new(inputLine);
             sumOfJoltages += batteryBank.FindHighestJoltage(amountOfDigits);
         }
 
