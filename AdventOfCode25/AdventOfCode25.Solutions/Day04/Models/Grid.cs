@@ -2,23 +2,19 @@
 
 public class Grid(bool canForkliftGoOverReachablePapers = false)
 {
-    private readonly List<List<GridTile>> _rows = [];
+    private readonly List<List<GridTileType>> _rows = [];
 
     public int RowCount => _rows.Count;
     public int ColumnCount => _rows[0].Count;
 
     public void AddRow(string row)
     {
-        List<GridTile> tiles = [.. row
+        List<GridTileType> tiles = [.. row
             .Select(tile => tile switch
             {
                 '.' => GridTileType.Empty,
                 '@' => GridTileType.PaperRoll,
                 _ => throw new Exception($"{tile}? Kaip sakot?"),
-            })
-            .Select(tileType => new GridTile
-            {
-                Type = tileType,
             })];
 
         _rows.Add(tiles);
@@ -34,22 +30,22 @@ public class Grid(bool canForkliftGoOverReachablePapers = false)
             {
                 Coordinates coordinates = new(row, column);
 
-                GridTile tileOfInterest = GetTileByCoordinates(coordinates);
+                GridTileType tileOfInterest = this[coordinates];
 
-                if (tileOfInterest.Type != GridTileType.PaperRoll)
+                if (tileOfInterest != GridTileType.PaperRoll)
                 {
                     continue;
                 }
 
                 bool isForkliftReachable = EnumerateNeighborCoordinates(coordinates)
                     .Where(coords => coords.IsWithinGrid(this))
-                    .Select(GetTileByCoordinates)
+                    .Select(x => this[x])
                     .Where(IsUnstompableTile)
                     .Count() < maxAmountOfNeighborPapers;
 
                 if (isForkliftReachable)
                 {
-                    tileOfInterest.Type = GridTileType.ForkliftReachable;
+                    this[coordinates] = GridTileType.ForkliftReachable;
                     stompedOnce = true;
                 }
             }
@@ -58,20 +54,23 @@ public class Grid(bool canForkliftGoOverReachablePapers = false)
         return stompedOnce;
     }
 
-    private bool IsUnstompableTile(GridTile tile)
+    private bool IsUnstompableTile(GridTileType tileType)
     {
         return canForkliftGoOverReachablePapers
-            ? tile.Type == GridTileType.PaperRoll
-            : tile.Type != GridTileType.Empty;
+            ? tileType == GridTileType.PaperRoll
+            : tileType != GridTileType.Empty;
     }
 
     public int ForkliftAccessibleTileCount => _rows
         .SelectMany(x => x)
-        .Where(x => x.Type == GridTileType.ForkliftReachable)
+        .Where(x => x == GridTileType.ForkliftReachable)
         .Count();
 
-    private GridTile GetTileByCoordinates(Coordinates coordinates)
-        => _rows[coordinates.Row][coordinates.Column];
+    private GridTileType this[Coordinates coordinates]
+    {
+        get => _rows[coordinates.Row][coordinates.Column];
+        set => _rows[coordinates.Row][coordinates.Column] = value;
+    }
 
     private static IEnumerable<Coordinates> EnumerateNeighborCoordinates(Coordinates center)
     {
@@ -86,11 +85,6 @@ public class Grid(bool canForkliftGoOverReachablePapers = false)
         yield return new(center.Row + 1, center.Column);
         yield return new(center.Row + 1, center.Column + 1);
     }
-}
-
-public class GridTile
-{
-    public GridTileType Type { get; set; }
 }
 
 public enum GridTileType
