@@ -4,9 +4,9 @@ namespace AdventOfCode25.Solutions.Day04;
 
 public class Solution
 {
-    public static async Task<int> CountForkliftAccessibleTilesAsync(string fileName)
+    public static async Task<int> CountForkliftAccessibleTilesAsync(string fileName, bool canStompReachablePapers)
     {
-        Grid grid = new();
+        Grid grid = new(canStompReachablePapers);
 
         await foreach (string inputLine in File.ReadLinesAsync($"./Day04/{fileName}.txt"))
         {
@@ -14,6 +14,18 @@ public class Solution
         }
 
         grid.SetForkliftAccessibleTiles(4);
+
+        if (canStompReachablePapers)
+        {
+            bool stompedSomething;
+
+            do
+            {
+                stompedSomething = grid.SetForkliftAccessibleTiles(4);
+            }
+            while (stompedSomething);
+        }
+
         return grid.ForkliftAccessibleTileCount;
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace AdventOfCode25.Solutions.Day04.Models;
 
-public class Grid
+public class Grid(bool canForkliftGoOverReachablePapers = false)
 {
     private readonly List<List<GridTile>> _rows = [];
 
@@ -24,8 +24,10 @@ public class Grid
         _rows.Add(tiles);
     }
 
-    public void SetForkliftAccessibleTiles(int maxAmountOfNeighborPapers)
+    public bool SetForkliftAccessibleTiles(int maxAmountOfNeighborPapers)
     {
+        bool stompedOnce = false;
+
         for (int row = 0; row < RowCount; row++)
         {
             for (int column = 0; column < ColumnCount; column++)
@@ -42,15 +44,25 @@ public class Grid
                 bool isForkliftReachable = EnumerateNeighborCoordinates(coordinates)
                     .Where(coords => coords.IsWithinGrid(this))
                     .Select(GetTileByCoordinates)
-                    .Where(x => x.Type != GridTileType.Empty)
+                    .Where(IsUnstompableTile)
                     .Count() < maxAmountOfNeighborPapers;
 
                 if (isForkliftReachable)
                 {
                     tileOfInterest.Type = GridTileType.ForkliftReachable;
+                    stompedOnce = true;
                 }
             }
         }
+
+        return stompedOnce;
+    }
+
+    private bool IsUnstompableTile(GridTile tile)
+    {
+        return canForkliftGoOverReachablePapers
+            ? tile.Type == GridTileType.PaperRoll
+            : tile.Type != GridTileType.Empty;
     }
 
     public int ForkliftAccessibleTileCount => _rows
