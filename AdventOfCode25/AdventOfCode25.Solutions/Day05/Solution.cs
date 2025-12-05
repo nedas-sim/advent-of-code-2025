@@ -4,12 +4,13 @@ namespace AdventOfCode25.Solutions.Day05;
 
 public class Solution
 {
-    public static async Task<int> CountFreshIdsAsync(string fileName)
+    public static async Task<long> CountFreshIdsAsync<T>(string fileName)
+        where T : ICheckRange, new()
     {
         FreshIdRangeCollection freshIdRangeCollection = new();
         bool reachedBreak = false;
 
-        int totalFreshIds = 0;
+        T checkRange = new();
 
         await foreach (string inputLine in File.ReadLinesAsync($"./Day05/{fileName}.txt"))
         {
@@ -31,16 +32,13 @@ public class Solution
                 {
                     long numberToCheck = long.Parse(inputLine);
 
-                    if (freshIdRangeCollection.IsInAnyRange(numberToCheck))
-                    {
-                        totalFreshIds++;
-                    }
+                    checkRange.SetSample(numberToCheck);
 
                     break;
                 }
             };
         }
 
-        return totalFreshIds;
+        return checkRange.CountFreshIds(freshIdRangeCollection);
     }
 }
