@@ -1,16 +1,16 @@
-﻿namespace AdventOfCode25.Solutions.Day02.Models;
+﻿using AdventOfCode25.Solutions.Shared;
+
+namespace AdventOfCode25.Solutions.Day02.Models;
 
 public class ProductIdRange
 {
-    private long _firstId;
-    private long _lastId;
+    private readonly long _firstId;
+    private readonly long _lastId;
 
     public ProductIdRange(string inputLine)
     {
-        string[] splitLine = inputLine.Split('-');
-
-        _firstId = long.Parse(splitLine[0]);
-        _lastId = long.Parse(splitLine[1]);
+        long[] splitLine = Utils.SplitByDash<long>(inputLine);
+        (_firstId, _lastId) = (splitLine[0], splitLine[1]);
     }
 
     public IEnumerable<long> GetInvalidIds(int? requiredEqualSplits = null)
