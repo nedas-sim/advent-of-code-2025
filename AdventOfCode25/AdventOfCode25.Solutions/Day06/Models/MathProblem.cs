@@ -13,6 +13,18 @@ public abstract class MathProblem
     public void SetOperation(MathOperation op) => _operation = op;
 
     public abstract long Calculate();
+
+    protected long ApplyOperation(IEnumerable<long> values)
+    {
+        if (_operation is MathOperation.Addition) return values.Sum();
+
+        if (_operation is MathOperation.Multiplication)
+        {
+            return values.Aggregate(1L, func: (a, b) => a * b);
+        }
+
+        return 0;
+    }
 }
 
 public class HumanMathProblem : MathProblem
@@ -20,53 +32,91 @@ public class HumanMathProblem : MathProblem
     public override long Calculate()
     {
         IEnumerable<long> parsedNumbers = _values.Select(long.Parse);
+        return ApplyOperation(parsedNumbers);
+    }
+}
 
-        if (_operation is MathOperation.Addition) return parsedNumbers.Sum();
-        
-        if (_operation is MathOperation.Multiplication)
+public class CephalopodMathProblem : MathProblem
+{
+    private Lazy<int> TotalNumberCount => new(() => _values.Select(x => x.Length).Max());
+
+    public override long Calculate()
+    {
+        IEnumerable<long> parsedNumbers = Enumerable.Range(0, TotalNumberCount.Value)
+            .Select(ParseNumberAtPosition);
+
+        return ApplyOperation(parsedNumbers);
+    }
+
+    private long ParseNumberAtPosition(int position)
+    {
+        List<char> digits = [.. _values
+            .Select(x => GetCharAtPosition(x, position))
+            .OfType<char>()];
+
+        return digits switch
         {
-            return parsedNumbers.Aggregate(1L, func: (a, b) => a * b);
+            [] when _operation is MathOperation.Addition => 0,
+            [] when _operation is MathOperation.Multiplication => 1,
+            _ => long.Parse(string.Join("", digits)),
+        };
+    }
+
+    private static char? GetCharAtPosition(string toCheck, int position)
+    {
+        if (position >= toCheck.Length)
+        {
+            return null;
         }
 
-        return 0;
+        return toCheck[position] switch
+        {
+            ' ' => null,
+            char notEmptyChar => notEmptyChar,
+        };
     }
 }
 
 public class MathProblemCollection<T>
     where T : MathProblem, new()
 {
-    private List<MathProblem> _list = [];
+    private readonly List<MathProblem> _mathProblemList;
+    private readonly List<Range> _numberRanges;
 
-    public long ProblemAnswerSum => _list.Select(x => x.Calculate()).Sum();
+    public long ProblemAnswerSum => _mathProblemList.Select(x => x.Calculate()).Sum();
 
-    public void HandleFirstLine(string inputLine)
+    public MathProblemCollection(string operationInputLine)
     {
-        IEnumerable<T> mathProblems = Utils.SplitBySpaces<string>(inputLine)
-            .Select(x =>
+        List<int> operationIndices = 
+        [
+            ..operationInputLine.Index().Where(x => x.Item != ' ').Select(x => x.Index), 
+            operationInputLine.Length
+        ];
+
+        _numberRanges = 
+        [ 
+            .. operationIndices[..^1]
+                .Zip(operationIndices[1..])
+                .Select(x => new Range(x.First, x.Second)),
+        ];
+
+        IEnumerable<T> mathProblems = Utils.SplitBySpaces<MathOperationWrapper>(operationInputLine)
+            .Select(wrapper =>
             {
                 T mathProblem = new();
-                mathProblem.AppendValue(x);
+                mathProblem.SetOperation(wrapper.Operation);
                 return mathProblem;
             });
 
-        _list = [ .. mathProblems ];
+        _mathProblemList = [.. mathProblems];
     }
 
-    public void HandleOtherLine(string inputLine)
+    public void HandleNumberLine(string inputLine)
     {
-        try
+        foreach ((int index, Range range) in _numberRanges.Index())
         {
-            foreach ((int problemIndex, MathOperationWrapper wrapper) in Utils.SplitBySpaces<MathOperationWrapper>(inputLine).Index())
-            {
-                _list[problemIndex].SetOperation(wrapper.Operation);
-            }
-        }
-        catch (InvalidOperationException)
-        {
-            foreach ((int problemIndex, string value) in Utils.SplitBySpaces<string>(inputLine).Index())
-            {
-                _list[problemIndex].AppendValue(value);
-            }
+            string number = inputLine[range];
+            _mathProblemList[index].AppendValue(number);
         }
     }
 }

@@ -6,17 +6,14 @@ public class Solution
 {
     public static async Task<long> SumAnswersAsync<T>(string fileName) where T : MathProblem, new()
     {
-        MathProblemCollection<T> mathProblemCollection = new();
+        List<string> lines = [.. File.ReadLines($"./Day06/{fileName}.txt")];
+        List<string> numberLines = lines[..(^1)];
 
-        await foreach ((int lineIndex, string lineInput) in File.ReadLinesAsync($"./Day06/{fileName}.txt").Index())
+        MathProblemCollection<T> mathProblemCollection = new(lines.Last());
+
+        foreach (string numberLine in numberLines)
         {
-            Action<string> actionToCall = lineIndex switch
-            {
-                0 => mathProblemCollection.HandleFirstLine,
-                _ => mathProblemCollection.HandleOtherLine,
-            };
-
-            actionToCall(lineInput);
+            mathProblemCollection.HandleNumberLine(numberLine);
         }
 
         return mathProblemCollection.ProblemAnswerSum;

@@ -19,17 +19,17 @@ public class Day06
         Assert.Equal(4693419406682, answerSum);
     }
 
-    /*[Fact]
+    [Fact]
     public async Task TestSolution2()
     {
-        long answerSum = await Solution.SumAnswersAsync("sample");
-        Assert.Equal(4277556, answerSum);
+        long answerSum = await Solution.SumAnswersAsync<CephalopodMathProblem>("sample");
+        Assert.Equal(3263827, answerSum);
     }
 
     [Fact]
     public async Task RunSolution2()
     {
-        long answerSum = await Solution.SumAnswersAsync("task");
-        Assert.Equal(4277556, answerSum);
-    }*/
+        long answerSum = await Solution.SumAnswersAsync<CephalopodMathProblem>("task");
+        Assert.Equal(9029931401920, answerSum);
+    }
 }
