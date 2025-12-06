@@ -8,4 +8,11 @@ public static class Utils
         string[] splitInput = input.Split('-');
         return [ ..splitInput.Select(x => T.Parse(x, null)) ];
     }
+
+    public static IEnumerable<T> SplitBySpaces<T>(string input)
+        where T : IParsable<T>
+    {
+        string[] splitInput = input.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return splitInput.Select(x => T.Parse(x, null));
+    }
 }
