@@ -4,9 +4,9 @@ namespace AdventOfCode25.Solutions.Day06;
 
 public class Solution
 {
-    public static async Task<long> SumAnswersAsync(string fileName)
+    public static async Task<long> SumAnswersAsync<T>(string fileName) where T : MathProblem, new()
     {
-        MathProblemCollection mathProblemCollection = new();
+        MathProblemCollection<T> mathProblemCollection = new();
 
         await foreach ((int lineIndex, string lineInput) in File.ReadLinesAsync($"./Day06/{fileName}.txt").Index())
         {

@@ -3,25 +3,37 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace AdventOfCode25.Solutions.Day06.Models;
 
-public class MathProblem(long firstValue)
+public abstract class MathProblem
 {
-    private MathOperation _operation;
-    private readonly List<long> _values = [firstValue];
+    protected MathOperation _operation;
+    protected readonly List<string> _values = [];
 
-    public void AppendValue(long value) => _values.Add(value);
+    public void AppendValue(string value) => _values.Add(value);
 
     public void SetOperation(MathOperation op) => _operation = op;
 
-    public long Calculate()
+    public abstract long Calculate();
+}
+
+public class HumanMathProblem : MathProblem
+{
+    public override long Calculate()
     {
-        if (_operation == MathOperation.Addition) return _values.Sum();
-        if (_operation == MathOperation.Multiplication) return _values.Aggregate(1L, func: (a, b) => a * b);
+        IEnumerable<long> parsedNumbers = _values.Select(long.Parse);
+
+        if (_operation is MathOperation.Addition) return parsedNumbers.Sum();
+        
+        if (_operation is MathOperation.Multiplication)
+        {
+            return parsedNumbers.Aggregate(1L, func: (a, b) => a * b);
+        }
 
         return 0;
     }
 }
 
-public class MathProblemCollection
+public class MathProblemCollection<T>
+    where T : MathProblem, new()
 {
     private List<MathProblem> _list = [];
 
@@ -29,7 +41,15 @@ public class MathProblemCollection
 
     public void HandleFirstLine(string inputLine)
     {
-        _list = [ ..Utils.SplitBySpaces<long>(inputLine).Select(x => new MathProblem(x)) ];
+        IEnumerable<T> mathProblems = Utils.SplitBySpaces<string>(inputLine)
+            .Select(x =>
+            {
+                T mathProblem = new();
+                mathProblem.AppendValue(x);
+                return mathProblem;
+            });
+
+        _list = [ .. mathProblems ];
     }
 
     public void HandleOtherLine(string inputLine)
@@ -43,9 +63,9 @@ public class MathProblemCollection
         }
         catch (InvalidOperationException)
         {
-            foreach ((int problemIndex, long number) in Utils.SplitBySpaces<long>(inputLine).Index())
+            foreach ((int problemIndex, string value) in Utils.SplitBySpaces<string>(inputLine).Index())
             {
-                _list[problemIndex].AppendValue(number);
+                _list[problemIndex].AppendValue(value);
             }
         }
     }
