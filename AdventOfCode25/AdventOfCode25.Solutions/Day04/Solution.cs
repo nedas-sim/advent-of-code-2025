@@ -6,7 +6,7 @@ public class Solution
 {
     public static async Task<int> CountForkliftAccessibleTilesAsync(string fileName, bool canStompReachablePapers)
     {
-        Grid grid = new(canStompReachablePapers);
+        PaperGrid grid = new(canStompReachablePapers);
 
         await foreach (string inputLine in File.ReadLinesAsync($"./Day04/{fileName}.txt"))
         {
