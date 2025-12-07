@@ -4,10 +4,12 @@ namespace AdventOfCode25.Solutions.Day07;
 
 public class Solution
 {
-    public static async Task<int> CountSplits(string fileName)
+    public static async Task<long> CountSplits(string fileName, bool allowDuplicateBeams)
     {
-        TachyonManifold map = new();
+        TachyonManifold map = new(allowDuplicateBeams);
         await map.LoadFromFileAsync($"./Day07/{fileName}.txt");
-        return map.CountSplits();
+
+        return map.CountSplits()
+            + (allowDuplicateBeams ? 1 : 0); // whether or not to account for starting point
     }
 }

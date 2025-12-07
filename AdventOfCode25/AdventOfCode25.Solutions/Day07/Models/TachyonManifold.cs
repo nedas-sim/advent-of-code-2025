@@ -2,10 +2,12 @@
 
 namespace AdventOfCode25.Solutions.Day07.Models;
 
-public class TachyonManifold()
+public class TachyonManifold(bool allowDuplicateBeams)
     : Grid<TachyonManifoldTileType>(TachyonManifoldTileType.Create)
 {
-    public int CountSplits()
+    private readonly Dictionary<Coordinates, long> _cache = [];
+
+    public long CountSplits()
     {
         int startingIndex = _rows[0].Index()
             .Where(x => x.Item == TachyonManifoldTileType.BeamEntryPoint)
@@ -15,7 +17,7 @@ public class TachyonManifold()
         return ShineBeamFurther(0, startingIndex);
     }
 
-    private int ShineBeamFurther(int row, int beamIndex)
+    private long ShineBeamFurther(int row, int beamIndex)
     {
         Coordinates coords = new(row, beamIndex);
         if (!coords.IsWithinGrid(this))
@@ -23,19 +25,34 @@ public class TachyonManifold()
             return 0;
         }
 
+        if (allowDuplicateBeams && _cache.TryGetValue(coords, out long cachedResult))
+        {
+            return cachedResult;
+        }
+
         TachyonManifoldTileType currentTile = this[coords];
+        long cacheResult(long value) => CacheResultAtCoordinates(coords, value);
 
         if (currentTile == TachyonManifoldTileType.Beam)
         {
-            return 0;
+            return cacheResult(allowDuplicateBeams
+                ? ShineBeamFurther(row + 1, beamIndex)
+                : 0);
         }
 
         if (currentTile == TachyonManifoldTileType.Splitter)
         {
-            return 1 + ShineBeamFurther(row, beamIndex - 1) + ShineBeamFurther(row, beamIndex + 1);
+            return cacheResult(1 + ShineBeamFurther(row, beamIndex - 1) + ShineBeamFurther(row, beamIndex + 1));
         }
 
         this[coords] = TachyonManifoldTileType.Beam;
-        return ShineBeamFurther(row + 1, beamIndex);
+
+        return cacheResult(ShineBeamFurther(row + 1, beamIndex));
+    }
+
+    private long CacheResultAtCoordinates(Coordinates coords, long value)
+    {
+        _cache[coords] = value;
+        return value;
     }
 }

@@ -7,28 +7,28 @@ public class Day07
     [Fact]
     public async Task TestSolution1()
     {
-        int splits = await Solution.CountSplits("sample");
+        long splits = await Solution.CountSplits("sample", false);
         Assert.Equal(21, splits);
     }
 
     [Fact]
     public async Task RunSolution1()
     {
-        int splits = await Solution.CountSplits("task");
+        long splits = await Solution.CountSplits("task", false);
         Assert.Equal(1619, splits);
     }
 
-    /*[Fact]
+    [Fact]
     public async Task TestSolution2()
     {
-        long answerSum = await Solution.SumAnswersAsync<CephalopodMathProblem>("sample");
-        Assert.Equal(3263827, answerSum);
+        long splits = await Solution.CountSplits("sample", true);
+        Assert.Equal(40, splits);
     }
 
     [Fact]
     public async Task RunSolution2()
     {
-        long answerSum = await Solution.SumAnswersAsync<CephalopodMathProblem>("task");
-        Assert.Equal(9029931401920, answerSum);
-    }*/
+        long splits = await Solution.CountSplits("task", true);
+        Assert.Equal(23607984027985, splits);
+    }
 }
