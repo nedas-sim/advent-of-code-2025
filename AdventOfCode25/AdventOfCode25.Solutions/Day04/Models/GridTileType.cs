@@ -9,7 +9,7 @@ public enum GridTileType
 
 public static class GridTileTypeExtensions
 {
-    extension(GridTileType tileType)
+    extension(GridTileType)
     {
         public static GridTileType Create(char c) => c switch
         {

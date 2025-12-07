@@ -13,6 +13,14 @@ public abstract class Grid<T>(Func<char, T> tileMapFunc)
         _rows.Add(tiles);
     }
 
+    public async Task LoadFromFileAsync(string fileName)
+    {
+        await foreach (string inputLine in File.ReadLinesAsync(fileName))
+        {
+            AddRow(inputLine);
+        }
+    }
+
     protected T this[Coordinates coordinates]
     {
         get => _rows[coordinates.Row][coordinates.Column];

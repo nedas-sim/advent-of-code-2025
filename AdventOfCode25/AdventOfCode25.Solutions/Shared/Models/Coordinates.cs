@@ -1,10 +1,8 @@
-﻿using AdventOfCode25.Solutions.Day04.Models;
-
-namespace AdventOfCode25.Solutions.Shared.Models;
+﻿namespace AdventOfCode25.Solutions.Shared.Models;
 
 public record struct Coordinates(int Row, int Column)
 {
-    public readonly bool IsWithinGrid(PaperGrid grid)
+    public readonly bool IsWithinGrid<T>(Grid<T> grid)
     {
         return (Row, Column) switch
         {
