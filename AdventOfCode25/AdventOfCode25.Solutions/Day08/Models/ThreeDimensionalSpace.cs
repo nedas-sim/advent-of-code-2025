@@ -2,11 +2,11 @@
 
 namespace AdventOfCode25.Solutions.Day08.Models;
 
-public class ThreeDimensionalSpace
+public abstract class ThreeDimensionalSpace(bool performLoopActionAtStart)
 {
-    private readonly List<ThreeDimensionCoordinate> _coordinates = [];
+    protected readonly List<ThreeDimensionCoordinate> _coordinates = [];
 
-    private ThreeDimensionCoordinate this[int index]
+    protected ThreeDimensionCoordinate this[int index]
     {
         get => _coordinates[index];
     }
@@ -18,7 +18,7 @@ public class ThreeDimensionalSpace
         _coordinates.Add(coordinate);
     }
 
-    public long CalculateWhatIsNeeded(int amountOfConnections)
+    public long CalculateWhatIsNeeded()
     {
         SortedList<long, (int Index1, int Index2)> sortedList = [];
 
@@ -37,9 +37,14 @@ public class ThreeDimensionalSpace
 
         foreach ((int index1, int index2) in sortedList.Values)
         {
-            if (amountOfConnections-- == 0)
+            if (performLoopActionAtStart)
             {
-                break;
+                ActionOnLoop(index1, index2);
+
+                if (ShouldLoopBreak(circuits))
+                {
+                    break;
+                }
             }
 
             Circuit circuit1 = circuits.First(x => x.HasIndex(index1));
@@ -52,8 +57,42 @@ public class ThreeDimensionalSpace
 
             circuit1.CombineCircuit(circuit2);
             circuits.Remove(circuit2);
+
+            if (!performLoopActionAtStart)
+            {
+                ActionOnLoop(index1, index2);
+
+                if (ShouldLoopBreak(circuits))
+                {
+                    break;
+                }
+            }
         }
 
+        return GetFinalResult(circuits);
+    }
+
+    protected abstract void ActionOnLoop(int index1, int index2);
+
+    protected abstract bool ShouldLoopBreak(List<Circuit> circuits);
+
+    protected abstract long GetFinalResult(List<Circuit> circuits);
+}
+
+public class LimitedConnectionSpace(int amountOfConnections) : ThreeDimensionalSpace(true)
+{
+    protected override void ActionOnLoop(int index1, int index2)
+    {
+        amountOfConnections--;
+    }
+
+    protected override bool ShouldLoopBreak(List<Circuit> circuits)
+    {
+        return amountOfConnections < 0;
+    }
+
+    protected override long GetFinalResult(List<Circuit> circuits)
+    {
         return circuits.OrderByDescending(x => x.IndexCount)
             .Take(3)
             .Select(x => x.IndexCount)
@@ -61,21 +100,22 @@ public class ThreeDimensionalSpace
     }
 }
 
-public class Circuit(int initialIndex)
+public class UntilLastNeededConnection() : ThreeDimensionalSpace(false)
 {
-    private readonly HashSet<int> _junctionBoxIndices = [initialIndex];
+    private int _lastIndex1, _lastIndex2;
 
-    public bool HasIndex(int index) => _junctionBoxIndices.Contains(index);
-
-    public void CombineCircuit(Circuit circuit)
+    protected override void ActionOnLoop(int index1, int index2)
     {
-        foreach (int index in circuit._junctionBoxIndices)
-        {
-            AddIndex(index);
-        }
+        (_lastIndex1, _lastIndex2) = (index1, index2);
     }
 
-    public long IndexCount => _junctionBoxIndices.Count;
+    protected override bool ShouldLoopBreak(List<Circuit> circuits)
+    {
+        return circuits.Count == 1;
+    }
 
-    public void AddIndex(int index) => _junctionBoxIndices.Add(index);
+    protected override long GetFinalResult(List<Circuit> circuits)
+    {
+        return this[_lastIndex1].X * this[_lastIndex2].X;
+    }
 }

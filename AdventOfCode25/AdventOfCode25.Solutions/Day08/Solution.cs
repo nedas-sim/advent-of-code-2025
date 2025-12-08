@@ -6,13 +6,25 @@ public class Solution
 {
     public static async Task<long> CalculateDistanceProductAsync(string fileName, int amountOfConnections)
     {
-        ThreeDimensionalSpace space = new();
+        LimitedConnectionSpace space = new(amountOfConnections);
 
         await foreach (string inputLine in File.ReadLinesAsync($"./Day08/{fileName}.txt"))
         {
             space.AddCoordinate(inputLine);
         }
 
-        return space.CalculateWhatIsNeeded(amountOfConnections);
+        return space.CalculateWhatIsNeeded();
+    }
+
+    public static async Task<long> CalculateLastXCoordinateProduct(string fileName)
+    {
+        UntilLastNeededConnection space = new();
+
+        await foreach (string inputLine in File.ReadLinesAsync($"./Day08/{fileName}.txt"))
+        {
+            space.AddCoordinate(inputLine);
+        }
+
+        return space.CalculateWhatIsNeeded();
     }
 }
