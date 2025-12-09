@@ -1,4 +1,5 @@
-﻿using AdventOfCode25.Solutions.Shared;
+﻿using AdventOfCode25.Solutions.Day09.Models;
+using AdventOfCode25.Solutions.Shared;
 using AdventOfCode25.Solutions.Shared.Models;
 
 namespace AdventOfCode25.Solutions.Day09;
@@ -15,5 +16,30 @@ public class Solution
             .Max();
 
         return maxArea;
+    }
+
+    public static async Task<long> GetLargestContainedSquareAreaAsync(string fileName)
+    {
+        List<Coordinates> coords = File.ReadLines($"./Day09/{fileName}.txt")
+            .Select(x => Utils.SplitByComma<int>(x).ToArray())
+            .Select(x => new Coordinates(x[0], x[1]))
+            .ToList();
+
+        LineCollection collection = new();
+        collection.AddLine(coords.Last(), coords.First());
+
+        for (int i = 0; i < coords.Count - 1; i++)
+        {
+            collection.AddLine(coords[i], coords[i + 1]);
+        }
+
+        var aa = coords
+            .GetUniqueCombinations()
+            .Select(x => new Rectangle(x.Item1, x.Item2, collection))
+            .Where(x => !x.IsOutOfBounds())
+            .Select(x => (x, x.CornerOne.GetBoundingBoxArea(x.CornerTwo)))
+            .MaxBy(x => x.Item2);
+
+        return aa.Item2;
     }
 }

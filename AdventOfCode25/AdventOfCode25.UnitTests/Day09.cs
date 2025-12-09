@@ -18,17 +18,24 @@ public class Day09
         Assert.Equal(4738108384, result);
     }
 
-    /*[Fact]
+    [Fact]
     public async Task TestSolution2()
     {
-        long result = await Solution.GetLargestSquareAreaAsync("sample");
-        Assert.Equal(40, result);
+        long result = await Solution.GetLargestContainedSquareAreaAsync("sample");
+        Assert.Equal(24, result);
     }
 
     [Fact]
     public async Task RunSolution2()
     {
-        long result = await Solution.GetLargestSquareAreaAsync("task");
-        Assert.Equal(54600, result);
-    }*/
+        long result = await Solution.GetLargestContainedSquareAreaAsync("task");
+        Assert.NotEqual(4582310446, result);
+        Assert.NotEqual(4576741172, result);
+        Assert.True(result < 4738108384); // Solution1 answer
+
+        Assert.Equal(1, result); // Show result in error message
+
+        // 4576741172
+        // 4582310446
+    }
 }
