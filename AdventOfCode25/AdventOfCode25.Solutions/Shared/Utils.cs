@@ -32,4 +32,20 @@ public static class Utils
             return values.Aggregate(T.MultiplicativeIdentity, func: (a, b) => a * b);
         }
     }
+
+    extension<T>(IEnumerable<T> values)
+    {
+        public IEnumerable<(T, T)> GetUniqueCombinations()
+        {
+            List<T> materializedList = [.. values];
+
+            for (int i = 0; i < materializedList.Count - 1; i++)
+            {
+                for (int j = i + 1; j < materializedList.Count; j++)
+                {
+                    yield return (materializedList[i], materializedList[j]);
+                }
+            }
+        }
+    }
 }
