@@ -28,12 +28,12 @@ public record struct Coordinates(int Row, int Column)
 
     public readonly long GetBoundingBoxArea(Coordinates other)
     {
-        long rowDiff = 1 + LongAbs(Row, other.Row);
-        long colDiff = 1 + LongAbs(Column, other.Column);
+        long rowDiff = 1 + Diff(Row, other.Row);
+        long colDiff = 1 + Diff(Column, other.Column);
         return rowDiff * colDiff;
     }
 
-    private static long LongAbs(long a, long b)
+    private static long Diff(long a, long b)
     {
         if (a > b)
         {
