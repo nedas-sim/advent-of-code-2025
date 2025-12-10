@@ -22,7 +22,7 @@ public class Solution
     {
         List<Coordinates> coords = File.ReadLines($"./Day09/{fileName}.txt")
             .Select(x => Utils.SplitByComma<int>(x).ToArray())
-            .Select(x => new Coordinates(x[0], x[1]))
+            .Select(x => new Coordinates(x[1], x[0]))
             .ToList();
 
         LineCollection collection = new();
@@ -37,7 +37,7 @@ public class Solution
             .GetUniqueCombinations()
             .Select(x => new Rectangle(x.Item1, x.Item2, collection))
             .Where(x => !x.IsOutOfBounds())
-            .Select(x => (x, x.CornerOne.GetBoundingBoxArea(x.CornerTwo)))
+            .Select(x => (x, x.TopLeft.GetBoundingBoxArea(x.BottomRight)))
             .MaxBy(x => x.Item2);
 
         return aa.Item2;

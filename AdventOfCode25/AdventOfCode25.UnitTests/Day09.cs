@@ -29,13 +29,13 @@ public class Day09
     public async Task RunSolution2()
     {
         long result = await Solution.GetLargestContainedSquareAreaAsync("task");
+
+        Assert.NotEqual(43402179, result);
         Assert.NotEqual(4582310446, result);
         Assert.NotEqual(4576741172, result);
+
         Assert.True(result < 4738108384); // Solution1 answer
 
         Assert.Equal(1, result); // Show result in error message
-
-        // 4576741172
-        // 4582310446
     }
 }

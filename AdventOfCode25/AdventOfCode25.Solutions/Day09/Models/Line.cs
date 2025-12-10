@@ -95,25 +95,57 @@ public class LineCollection
     }
 }
 
-public class Rectangle(
-    Coordinates cornerOne,
-    Coordinates cornerTwo,
-    LineCollection lineCollection)
+public class Rectangle
 {
-    public Coordinates CornerOne => cornerOne;
+    private readonly LineCollection _lineCollection;
+
+    public Coordinates TopLeft { get; private set; }
+    public Coordinates TopRight { get; private set; }
+    public Coordinates BottomLeft { get; private set; }
+    public Coordinates BottomRight { get; private set; }
+
+    public Rectangle(
+        Coordinates one,
+        Coordinates two,
+        LineCollection lineCollection)
+    {
+        (Coordinates left, Coordinates right) = one.Column < two.Column
+            ? (one, two)
+            : (two, one);
+
+        (Coordinates top, Coordinates bottom) = one.Row < two.Row
+            ? (one, two)
+            : (two, one);
+
+        TopLeft = new(top.Row, left.Column);
+        TopRight = new(top.Row, right.Column);
+        BottomLeft = new(bottom.Row, left.Column);
+        BottomRight = new(bottom.Row, right.Column);
+
+        _lineCollection = lineCollection;
+    }
+
+
+    /*public Coordinates CornerOne => cornerOne;
     public Coordinates CornerTwo => cornerTwo;
     public Coordinates CornerThree => new(cornerOne.Row, cornerTwo.Column);
-    public Coordinates CornerFour => new(cornerTwo.Row, cornerOne.Column);
+    public Coordinates CornerFour => new(cornerTwo.Row, cornerOne.Column);*/
 
     public bool IsOutOfBounds()
     {
-        return IsPointOfOutBounds(CornerOne)
+        return IsOutOfBoundsRight(TopLeft) != IsOutOfBoundsRight(TopRight)
+            || IsOutOfBoundsRight(BottomLeft) != IsOutOfBoundsRight(BottomRight)
+
+            || IsOutOfBoundsDown(TopLeft) != IsOutOfBoundsDown(BottomLeft)
+            || IsOutOfBoundsDown(TopRight) != IsOutOfBoundsDown(BottomRight);
+
+        /*return IsPointOfOutBounds(CornerOne)
             || IsPointOfOutBounds(CornerTwo)
             || IsPointOfOutBounds(CornerThree)
-            || IsPointOfOutBounds(CornerFour);
+            || IsPointOfOutBounds(CornerFour);*/
     }
 
-    private bool IsPointOfOutBounds(Coordinates point)
+    /*private bool IsPointOfOutBounds(Coordinates point)
     {
         if (lineCollection.IsCorner(point))
         {
@@ -124,9 +156,9 @@ public class Rectangle(
             || IsOutOfBoundsDown(point)
             || IsOutOfBoundsLeft(point)
             || IsOutOfBoundsRight(point);
-    }
+    }*/
 
-    private bool IsOutOfBoundsUp(Coordinates point)
+    /*private bool IsOutOfBoundsUp(Coordinates point)
     {
         int horizontalLinesAbove =
             lineCollection.HorizontalLinesOnColumn(point.Column, row => row <= point.Row);
@@ -134,10 +166,10 @@ public class Rectangle(
         int verticalLinesAbove =
             lineCollection.VerticalLinesOnColumn(point.Column, row => row <= point.Row);
 
-        /*int boundaryAdjustment = 
+        *//*int boundaryAdjustment = 
             point.Column == lineCollection.Left || point.Column == lineCollection.Right
                 ? 1
-                : 0;*/
+                : 0;*//*
 
         int boundaryAdjustment =
             point.Column == lineCollection.Left ? lineCollection.ColumnsOnLeft
@@ -145,31 +177,31 @@ public class Rectangle(
             : 0;
 
         return (horizontalLinesAbove + verticalLinesAbove + boundaryAdjustment) % 2 == 0;
-    }
+    }*/
 
-    private bool IsOutOfBoundsDown(Coordinates point)
+    private int IsOutOfBoundsDown(Coordinates point)
     {
         int horizontalLinesBelow =
-            lineCollection.HorizontalLinesOnColumn(point.Column, row => row >= point.Row);
+            _lineCollection.HorizontalLinesOnColumn(point.Column, row => row >= point.Row);
 
         int verticalLinesBelow =
-            lineCollection.VerticalLinesOnColumn(point.Column, row => row >= point.Row);
-
-        /*int boundaryAdjustment =
-            point.Column == lineCollection.Left || point.Column == lineCollection.Right
-                ? 1
-                : 0;*/
+            _lineCollection.VerticalLinesOnColumn(point.Column, row => row >= point.Row);
 
         int boundaryAdjustment =
-            point.Column == lineCollection.Left ? lineCollection.ColumnsOnLeft
-            : point.Column == lineCollection.Right ? lineCollection.ColumnsOnRight
-            : 0;
+            point.Column == _lineCollection.Left || point.Column == _lineCollection.Right
+                ? 1
+                : 0;
+
+        /*int boundaryAdjustment =
+            point.Column == _lineCollection.Left ? _lineCollection.ColumnsOnLeft
+            : point.Column == _lineCollection.Right ? _lineCollection.ColumnsOnRight
+            : 0;*/
 
 
-        return (horizontalLinesBelow + verticalLinesBelow + boundaryAdjustment) % 2 == 0;
+        return horizontalLinesBelow + verticalLinesBelow + boundaryAdjustment;
     }
 
-    private bool IsOutOfBoundsLeft(Coordinates point)
+    /*private bool IsOutOfBoundsLeft(Coordinates point)
     {
         int horizontalLinesToTheLeft =
             lineCollection.HorizontalLinesOnRow(point.Row, column => column <= point.Column);
@@ -177,10 +209,10 @@ public class Rectangle(
         int verticalLinesToTheLeft =
             lineCollection.VerticalLinesOnRow(point.Row, column => column <= point.Column);
 
-        /*int boundaryAdjustment =
+        *//*int boundaryAdjustment =
             point.Row == lineCollection.Top || point.Row == lineCollection.Bottom
                 ? 1
-                : 0;*/
+                : 0;*//*
 
         int boundaryAdjustment =
             point.Row == lineCollection.Top ? lineCollection.RowsOnTop
@@ -188,26 +220,26 @@ public class Rectangle(
             : 0;
 
         return (horizontalLinesToTheLeft + verticalLinesToTheLeft + boundaryAdjustment) % 2 == 0;
-    }
+    }*/
 
-    private bool IsOutOfBoundsRight(Coordinates point)
+    private int IsOutOfBoundsRight(Coordinates point)
     {
         int horizontalLinesToTheRight =
-            lineCollection.HorizontalLinesOnRow(point.Row, column => column >= point.Column);
+            _lineCollection.HorizontalLinesOnRow(point.Row, column => column >= point.Column);
 
         int verticalLinesToTheRight =
-            lineCollection.VerticalLinesOnRow(point.Row, column => column >= point.Column);
-
-        /* int boundaryAdjustment =
-             point.Row == lineCollection.Top || point.Row == lineCollection.Bottom
-                 ? 1
-                 : 0;*/
+            _lineCollection.VerticalLinesOnRow(point.Row, column => column >= point.Column);
 
         int boundaryAdjustment =
-            point.Row == lineCollection.Top ? lineCollection.RowsOnTop
-            : point.Row == lineCollection.Bottom ? lineCollection.RowsOnBottom
-            : 0;
+            point.Row == _lineCollection.Top || point.Row == _lineCollection.Bottom
+                ? 1
+                : 0;
 
-        return (horizontalLinesToTheRight + verticalLinesToTheRight + boundaryAdjustment) % 2 == 0;
+        /*int boundaryAdjustment =
+            point.Row == _lineCollection.Top ? _lineCollection.RowsOnTop
+            : point.Row == _lineCollection.Bottom ? _lineCollection.RowsOnBottom
+            : 0;*/
+
+        return horizontalLinesToTheRight + verticalLinesToTheRight + boundaryAdjustment;
     }
 }
