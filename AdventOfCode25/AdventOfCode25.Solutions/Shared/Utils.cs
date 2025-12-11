@@ -25,6 +25,16 @@ public static class Utils
         return splitInput.Select(x => T.Parse(x, null));
     }
 
+    public static long Diff(long a, long b)
+    {
+        if (a > b)
+        {
+            return a - b;
+        }
+
+        return b - a;
+    }
+
     extension<T>(IEnumerable<T> values) where T : IMultiplyOperators<T, T, T>, IMultiplicativeIdentity<T, T>
     {
         public T Product()
