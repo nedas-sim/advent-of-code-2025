@@ -29,10 +29,6 @@ public class Day09
     public async Task RunSolution2()
     {
         long result = await Solution.GetLargestContainedRectangleAreaAsync("task", true);
-
-        Assert.NotEqual(86716069, result);
-        Assert.NotEqual(182366626, result);
-
-        Assert.Equal(1, result);
+        Assert.Equal(1513792010, result);
     }
 }

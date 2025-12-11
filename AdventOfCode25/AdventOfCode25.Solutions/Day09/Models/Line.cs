@@ -8,6 +8,8 @@ public record Line(Coordinates Start, Coordinates End)
     public bool IsHorizontal => Start.Row == End.Row;
     public bool PointingInPositiveDirection
         => (End.Row - Start.Row) + (End.Column - Start.Column) > 0;
+
+    public long Length => Utils.Diff(Start.Row, End.Row) + Utils.Diff(Start.Column, End.Column) - 1;
 }
 
 public class LineCollection(bool onLeft)
@@ -40,9 +42,6 @@ public class LineCollection(bool onLeft)
             BorderLines.Add(new Line(_borderCorners[i], _borderCorners[i + 1]));
         }
         BorderLines.Add(new Line(_borderCorners[^1], _borderCorners[0]));
-
-        /*IEnumerable<string> labels = _borderCorners.Select(x => $"({x.Column}, {x.Row})");
-        Console.WriteLine(string.Join(Environment.NewLine, labels));*/
     }
 
     private static Coordinates GetBorderCorner(Line one, Line two, bool onLeft)
@@ -136,7 +135,7 @@ public class Rectangle
 
         bool leftIsWithin = TopLeft.Column <= left && left <= TopRight.Column;
         bool rightIsWithin = TopLeft.Column <= right && right <= TopRight.Column;
-        bool fullyIntersects = left < TopLeft.Column && right < TopRight.Column;
+        bool fullyIntersects = left < TopLeft.Column && right > TopRight.Column;
 
         return leftIsWithin || rightIsWithin || fullyIntersects;
     }
