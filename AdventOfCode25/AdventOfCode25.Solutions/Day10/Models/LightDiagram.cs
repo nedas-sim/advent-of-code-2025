@@ -4,6 +4,8 @@ public record LightDiagram
 {
     public required List<bool> Indicators { get; set; }
 
+    public int Id => HashCode.Combine(Indicators.Select(x => x.GetHashCode()));
+
     public LightDiagram ApplyToggle(WiringSchematic schematic)
     {
         return new LightDiagram
@@ -32,6 +34,10 @@ public class Machine
 {
     private readonly LightDiagram _desiredDiagram;
     private readonly List<WiringSchematic> _schematics;
+
+    private readonly Dictionary<int, bool> _cache = [];
+
+    public int Result { get; private set; }
 
     public Machine(string inputLine)
     {
@@ -86,6 +92,7 @@ public class Machine
             {
                 if (SolveInternal(lightDiagramAtCurrentLevel, out List<LightDiagram> forNextLevel))
                 {
+                    Result = level;
                     return level;
                 }
 
@@ -100,6 +107,11 @@ public class Machine
     {
         diagramsForNextLevel = [];
 
+        if (_cache.TryGetValue(current.Id, out bool cached))
+        {
+            return cached;
+        }
+
         foreach (WiringSchematic schematic in _schematics)
         {
             LightDiagram toggled = current.ApplyToggle(schematic);
@@ -107,10 +119,12 @@ public class Machine
 
             if (toggled.IsEqual(_desiredDiagram))
             {
+                _cache[current.Id] = true;
                 return true;
             }
         }
 
+        _cache[current.Id] = false;
         return false;
     }
 }
