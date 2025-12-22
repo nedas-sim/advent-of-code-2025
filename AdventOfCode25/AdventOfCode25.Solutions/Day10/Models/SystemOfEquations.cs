@@ -1,4 +1,6 @@
-﻿namespace AdventOfCode25.Solutions.Day10.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace AdventOfCode25.Solutions.Day10.Models;
 
 public class Equation
 {
@@ -54,9 +56,11 @@ public class SystemOfEquations
 
         List<EquatableArray> forCurrentLevel = GetCombinationProduct().ToList();
 
+        EquatableArrayComparer comparer = new();
+
         while (true)
         {
-            HashSet<EquatableArray> forNextLevel = [];
+            HashSet<EquatableArray> forNextLevel = new(comparer);
 
             foreach (EquatableArray combination in forCurrentLevel)
             {
@@ -92,7 +96,7 @@ public class SystemOfEquations
             }
             
             forCurrentLevel = [.. forNextLevel];
-            forNextLevel = [];
+            forNextLevel = new(comparer);
             depth++;
         }
     }
@@ -231,6 +235,19 @@ public class SystemOfEquations
     }
 }
 
+public class EquatableArrayComparer : IEqualityComparer<EquatableArray>
+{
+    public bool Equals(EquatableArray? x, EquatableArray? y)
+    {
+        return x?.Equals(y) ?? false;
+    }
+
+    public int GetHashCode([DisallowNull] EquatableArray obj)
+    {
+        return obj.GetHashCode();
+    }
+}
+
 public class EquatableArray : IEquatable<EquatableArray>
 {
     public required int[] Items { get; init; }
@@ -245,13 +262,17 @@ public class EquatableArray : IEquatable<EquatableArray>
         return other.Items.SequenceEqual(Items);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return Equals(obj as EquatableArray);
     }
 
     public override int GetHashCode()
     {
-        return HashCode.Combine(Items);
+        HashCode hc = new();
+
+        foreach (int x in Items) hc.Add(x);
+
+        return hc.ToHashCode();
     }
 }
