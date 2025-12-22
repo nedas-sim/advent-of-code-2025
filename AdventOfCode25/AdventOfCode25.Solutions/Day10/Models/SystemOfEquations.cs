@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-
-namespace AdventOfCode25.Solutions.Day10.Models;
+﻿namespace AdventOfCode25.Solutions.Day10.Models;
 
 public class Equation
 {
@@ -9,15 +6,28 @@ public class Equation
 
     public string CoeeficientsUpToLast() => string.Join("", Coefficients[..^1]);
 
-    public bool ApplyAndCompare(int[] variables)
+    public EquationResult ApplyAndCompare(int[] variables)
     {
-        return Apply(variables) == Coefficients[^1];
+        decimal sum = Apply(variables);
+
+        int compareValue = sum.CompareTo(Coefficients[^1]);
+
+        if (compareValue == 0) return EquationResult.Equal;
+        if (compareValue > 0) return EquationResult.More;
+        return EquationResult.JustContinue;
     }
 
     private decimal Apply(int[] variables)
     {
         return variables.Zip(Coefficients).Select(x => x.First * x.Second).Sum();
     }
+}
+
+public enum EquationResult
+{
+    Equal = 1,
+    More,
+    JustContinue,
 }
 
 public class SystemOfEquations
@@ -50,9 +60,29 @@ public class SystemOfEquations
 
             foreach (EquatableArray combination in forCurrentLevel)
             {
-                if (_equations.All(eq => eq.ApplyAndCompare(combination.Items)))
+                Dictionary<EquationResult, int> equationStatusToBool = _equations
+                    .Select(eq => eq.ApplyAndCompare(combination.Items))
+                    .GroupBy(x => x)
+                    .ToDictionary(x => x.Key, x => x.Count());
+
+                bool safeAccess(EquationResult res)
+                {
+                    if (equationStatusToBool.TryGetValue(res, out int value))
+                    {
+                        return value > 0;
+                    }
+
+                    return false;
+                }
+
+                if (!safeAccess(EquationResult.More) && !safeAccess(EquationResult.JustContinue))
                 {
                     return depth;
+                }
+
+                if (!safeAccess(EquationResult.JustContinue))
+                {
+                    continue;
                 }
 
                 foreach (EquatableArray nextToAdd in MultiplyCombinations(combination.Items))
