@@ -11,4 +11,13 @@ public class Solution
             .Select(x => x.Solve())
             .Sum();
     }
+
+    public static async Task<long> DesimtDuAsync(string fileName)
+    {
+        return File.ReadLines($"./Day10/{fileName}.txt")
+            .Select(SystemOfEquations.Create)
+            .Select(x => x.DoGaussianElimination())
+            .Select(x => x.Solve())
+            .Sum();
+    }
 }
