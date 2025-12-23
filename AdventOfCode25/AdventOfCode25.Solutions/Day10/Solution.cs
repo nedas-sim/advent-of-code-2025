@@ -14,10 +14,13 @@ public class Solution
 
     public static async Task<long> DesimtDuAsync(string fileName)
     {
-        return File.ReadLines($"./Day10/{fileName}.txt")
+        List<SystemOfEquations> SOEs = File.ReadLines($"./Day10/{fileName}.txt")
             .Select(SystemOfEquations.Create)
-            .Select(x => x.DoGaussianElimination())
-            .Select(x => x.Solve())
-            .Sum();
+            .Index().Select(x => x.Item.DoGaussianElimination(x.Index))
+            .ToList();
+
+        Parallel.ForEach(SOEs.Index(), x => x.Item.Solve(x.Index));
+
+        return SOEs.Select(x => x.Solution).Sum();
     }
 }

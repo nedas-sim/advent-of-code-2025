@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AdventOfCode25.Solutions.Day10.Models;
 
@@ -50,8 +51,13 @@ public class SystemOfEquations
         set => _equations[row].Coefficients[col] = value;
     }
 
-    public int Solve()
+    public int Solution { get; set; }
+
+    public int Solve(int index)
     {
+        long startTimestamp = Stopwatch.GetTimestamp();
+        Console.WriteLine($"Starting problem solving for '{index}' at {DateTimeOffset.Now}");
+
         int depth = 1;
 
         List<EquatableArray> forCurrentLevel = GetCombinationProduct().ToList();
@@ -81,6 +87,11 @@ public class SystemOfEquations
 
                 if (!safeAccess(EquationResult.More) && !safeAccess(EquationResult.JustContinue))
                 {
+                    TimeSpan elapsedTime = Stopwatch.GetElapsedTime(startTimestamp);
+                    Console.WriteLine($"Finishing problem solving for '{index}' at {DateTimeOffset.Now}, it ran for {elapsedTime}. Solution is: {depth}");
+
+                    Solution = depth;
+
                     return depth;
                 }
 
@@ -128,8 +139,11 @@ public class SystemOfEquations
         }
     }
 
-    public SystemOfEquations DoGaussianElimination()
+    public SystemOfEquations DoGaussianElimination(int index)
     {
+        long startTimestamp = Stopwatch.GetTimestamp();
+        Console.WriteLine($"Starting Gaussian elimination for '{index}' at {DateTimeOffset.Now}");
+
         int h = 0, k = 0;
         int m = _equations.Count;
         int n = this[0].Coefficients.Count;
@@ -161,6 +175,9 @@ public class SystemOfEquations
             h++;
             k++;
         }
+
+        TimeSpan elapsedTime = Stopwatch.GetElapsedTime(startTimestamp);
+        Console.WriteLine($"Finishing Gaussian elimination for '{index}' at {DateTimeOffset.Now}, it ran for {elapsedTime}");
 
         return this;
     }

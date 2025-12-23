@@ -24,4 +24,11 @@ public class Day10
         long result = await Solution.DesimtDuAsync("sample");
         Assert.Equal(33, result);
     }
+
+    [Fact]
+    public async Task RunSolution2()
+    {
+        long result = await Solution.DesimtDuAsync("task");
+        Assert.Equal(33, result);
+    }
 }
