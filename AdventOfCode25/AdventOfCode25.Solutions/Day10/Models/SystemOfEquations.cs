@@ -7,7 +7,7 @@ public class Equation
 {
     public required List<decimal> Coefficients { get; set; }
 
-    public string CoeeficientsUpToLast() => string.Join("", Coefficients[..^1]);
+    public string CoefficientsUpToLast() => string.Join("", Coefficients[..^1]);
 
     public EquationResult ApplyAndCompare(int[] variables)
     {
@@ -18,6 +18,30 @@ public class Equation
         if (compareValue == 0) return EquationResult.Equal;
         if (compareValue > 0) return EquationResult.More;
         return EquationResult.JustContinue;
+    }
+
+    public (int VariableIndex, decimal VariableValue)? GetSingleVariableSolution()
+    {
+        List<(int Index, decimal Item)> nonZeroCoefficients = Coefficients[..^1]
+            .Index()
+            .Where(x => x.Item != 0)
+            .Take(2)
+            .ToList();
+
+        if (nonZeroCoefficients is not [(int Index, decimal Item) nonZeroCoefficient])
+        {
+            return null;
+        }
+
+        return (nonZeroCoefficient.Index, Coefficients[^1] / nonZeroCoefficient.Item);
+    }
+
+    public bool ApplyVariableSolution(int index, decimal solution)
+    {
+        const decimal epsilon = 0.0001M;
+        Coefficients[^1] -= Coefficients[index] * solution;
+        Coefficients = Coefficients.Index().Where(x => x.Index != index).Select(x => x.Item).ToList();
+        return Coefficients.All(x => -epsilon < x && x < epsilon);
     }
 
     private decimal Apply(int[] variables)
@@ -51,14 +75,18 @@ public class SystemOfEquations
         set => _equations[row].Coefficients[col] = value;
     }
 
-    public int Solution { get; set; }
+    public int Solution { get; private set; } = 0;
 
     public int Solve(int index)
     {
+        if (_equations is [])
+        {
+            Console.WriteLine($"No equations left for '{index}'. Solution is: {Solution}");
+            return Solution;
+        }
+
         long startTimestamp = Stopwatch.GetTimestamp();
         Console.WriteLine($"Starting problem solving for '{index}' at {DateTimeOffset.Now}");
-
-        int depth = 1;
 
         List<EquatableArray> forCurrentLevel = GetCombinationProduct().ToList();
 
@@ -70,16 +98,16 @@ public class SystemOfEquations
 
             foreach (EquatableArray combination in forCurrentLevel)
             {
-                Dictionary<EquationResult, int> equationStatusToBool = _equations
+                Dictionary<EquationResult, bool> equationStatusToBool = _equations
                     .Select(eq => eq.ApplyAndCompare(combination.Items))
                     .GroupBy(x => x)
-                    .ToDictionary(x => x.Key, x => x.Count());
+                    .ToDictionary(x => x.Key, x => x.Any());
 
                 bool safeAccess(EquationResult res)
                 {
-                    if (equationStatusToBool.TryGetValue(res, out int value))
+                    if (equationStatusToBool.TryGetValue(res, out bool value))
                     {
-                        return value > 0;
+                        return value;
                     }
 
                     return false;
@@ -88,11 +116,9 @@ public class SystemOfEquations
                 if (!safeAccess(EquationResult.More) && !safeAccess(EquationResult.JustContinue))
                 {
                     TimeSpan elapsedTime = Stopwatch.GetElapsedTime(startTimestamp);
-                    Console.WriteLine($"Finishing problem solving for '{index}' at {DateTimeOffset.Now}, it ran for {elapsedTime}. Solution is: {depth}");
+                    Console.WriteLine($"Finishing problem solving for '{index}' at {DateTimeOffset.Now}, it ran for {elapsedTime}. Solution is: {Solution}");
 
-                    Solution = depth;
-
-                    return depth;
+                    return Solution;
                 }
 
                 if (!safeAccess(EquationResult.JustContinue))
@@ -108,7 +134,7 @@ public class SystemOfEquations
             
             forCurrentLevel = [.. forNextLevel];
             forNextLevel = new(comparer);
-            depth++;
+            Solution++;
         }
     }
 
@@ -137,6 +163,34 @@ public class SystemOfEquations
                 Items = toYield,
             };
         }
+    }
+
+    public SystemOfEquations Simplify()
+    {
+        while (true)
+        {
+            (int VariableIndex, decimal VariableValue)? variableSolution = _equations
+                .Select(eq => eq.GetSingleVariableSolution())
+                .Where(x => x.HasValue)
+                .FirstOrDefault();
+
+            if (variableSolution is null)
+            {
+                break;
+            }
+
+            (int index, decimal value) = variableSolution.Value;
+
+            decimal positiveValue = Math.Abs(value);
+
+            Solution += (int)positiveValue;
+
+            _equations = _equations
+                .Where(x => !x.ApplyVariableSolution(index, value))
+                .ToList();
+        }
+
+        return this;
     }
 
     public SystemOfEquations DoGaussianElimination(int index)
@@ -247,16 +301,16 @@ public class SystemOfEquations
         }
 
         _equations = _equations
-            .OrderByDescending(x => x.CoeeficientsUpToLast())
+            .OrderByDescending(x => x.CoefficientsUpToLast())
             .ToList();
     }
 }
 
 public class EquatableArrayComparer : IEqualityComparer<EquatableArray>
 {
-    public bool Equals(EquatableArray? x, EquatableArray? y)
+    public bool Equals(EquatableArray x, EquatableArray y)
     {
-        return x?.Equals(y) ?? false;
+        return x.Equals(y);
     }
 
     public int GetHashCode([DisallowNull] EquatableArray obj)
@@ -265,31 +319,26 @@ public class EquatableArrayComparer : IEqualityComparer<EquatableArray>
     }
 }
 
-public class EquatableArray : IEquatable<EquatableArray>
+public readonly struct EquatableArray : IEquatable<EquatableArray>
 {
     public required int[] Items { get; init; }
 
-    public bool Equals(EquatableArray? other)
+    public readonly bool Equals(EquatableArray other)
     {
-        if (other is null)
-        {
-            return this is null;
-        }
-
         return other.Items.SequenceEqual(Items);
     }
 
-    public override bool Equals(object? obj)
-    {
-        return Equals(obj as EquatableArray);
-    }
-
-    public override int GetHashCode()
+    public override readonly int GetHashCode()
     {
         HashCode hc = new();
 
         foreach (int x in Items) hc.Add(x);
 
         return hc.ToHashCode();
+    }
+
+    public override readonly bool Equals(object obj)
+    {
+        return obj is EquatableArray array && Equals(array);
     }
 }
